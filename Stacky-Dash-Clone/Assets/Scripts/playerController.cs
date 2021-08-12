@@ -5,13 +5,19 @@ using UnityEngine;
 public class playerController : MonoBehaviour
 {
 
-
+    
     public GameObject parentOfDashes; 
     public static playerController instance;
     public float speed;
     public Rigidbody rb;
     public GameObject previousDash;
     private bool isMoving = false; //kullanılmıyo su an 
+    private bool lineNotExitted = false;
+
+
+    public List<GameObject> listOfCollectedStacks;
+   
+    
 
     directionBeforeCollision direction;
     enum directionBeforeCollision
@@ -27,6 +33,7 @@ public class playerController : MonoBehaviour
         if (instance ==null)
         {
             instance = this;
+            listOfCollectedStacks = new List<GameObject>();
         }
     }
 
@@ -64,7 +71,10 @@ public class playerController : MonoBehaviour
 
     public void TakeDashes(GameObject gam)
     {
+        
         gam.transform.SetParent(parentOfDashes.transform);
+        listOfCollectedStacks.Add(gam); // put collected stack to list, for reaching it later
+        
         Vector3 pos = previousDash.transform.localPosition;
         pos.y -= 0.080f;
         gam.transform.localPosition  = pos;
@@ -96,5 +106,22 @@ public class playerController : MonoBehaviour
     public bool getMovingInfo()
     {
         return isMoving;
+    }
+
+    public void setLineExitCheckBool()
+    {
+        lineNotExitted = true;
+    }
+
+    public void spendDashes()
+    {
+        Destroy(listOfCollectedStacks[0]);
+        /*
+        while (lineNotExitted)
+        {
+            //Destroy(listOfCollectedStacks[0]);
+            Instantiate(GameObject.FindWithTag("dashPrefab"), this.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
+        }*/
+
     }
 }

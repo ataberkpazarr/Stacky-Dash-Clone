@@ -7,6 +7,9 @@ TagManager:
   - Dash
   - notDash
   - Border
+  - Line
+  - dashPrefab
+  - lineEnd
   layers:
   - Default
   - TransparentFX
