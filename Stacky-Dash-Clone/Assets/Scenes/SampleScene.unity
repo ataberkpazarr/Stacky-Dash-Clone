@@ -617,75 +617,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 455615654}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1001 &481221229
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.712
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.541
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.405
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007784, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8727840076910007785, guid: 929f8f563659360449c3f64e1131f064,
-        type: 3}
-      propertyPath: m_Name
-      value: stackPrefab
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 929f8f563659360449c3f64e1131f064, type: 3}
 --- !u!1 &527370681
 GameObject:
   m_ObjectHideFlags: 0
@@ -1024,10 +955,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b1faa620198f746a11beed9c05a946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dashpref: {fileID: 5207582152436743415, guid: 07d79377e29e34548b7a8d82e1135a1f,
+    type: 3}
   parentOfDashes: {fileID: 367362289}
   speed: 1500
   rb: {fileID: 601816752}
   previousDash: {fileID: 1547889050}
+  first_stack: {fileID: 0}
   listOfCollectedStacks: []
 --- !u!1 &624111707
 GameObject:
@@ -1874,7 +1808,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 601816750}
-  offset: {x: 0, y: 10, z: -7}
+  offset: {x: 0, y: 10, z: -9}
   lerpVal: 0
 --- !u!1 &994135709
 GameObject:
@@ -2089,7 +2023,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1342107550}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.041, y: 0.455, z: 1.596}
+  m_LocalPosition: {x: -0.041, y: -0.41, z: 1.597}
   m_LocalScale: {x: 0.01, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 952422743}
@@ -2264,7 +2198,7 @@ GameObject:
   - component: {fileID: 1547889056}
   m_Layer: 0
   m_Name: Stack
-  m_TagString: Untagged
+  m_TagString: Dash
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2373,6 +2307,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dashPrefab: {fileID: 8727840076910007785, guid: 929f8f563659360449c3f64e1131f064,
     type: 3}
+  rightBorder3: {fileID: 0}
 --- !u!1 &1556288359
 GameObject:
   m_ObjectHideFlags: 0
