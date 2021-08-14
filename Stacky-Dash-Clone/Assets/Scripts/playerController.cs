@@ -5,6 +5,11 @@ using UnityEngine;
 public class playerController : MonoBehaviour
 {
 
+    public Transform posA;
+    public Transform posB;
+    public Transform posC;
+    public float interpolateAmount;
+
     public GameObject dashpref;
     public GameObject parentOfDashes; 
     public static playerController instance;
@@ -45,41 +50,50 @@ public class playerController : MonoBehaviour
         }
     }
 
+    private Vector3 QuadraticLerp(Vector3 a, Vector3 b, Vector3 c, float t)
+    {
+        Vector3 ab = Vector3.Lerp(a,b,t);
+        Vector3 bc = Vector3.Lerp(b,c,t);
+
+        return Vector3.Lerp(ab,bc,interpolateAmount);
+        
+
+    }
 
 
     // Update is called once per frame
     void Update() //freeze position & rotation may be required 
     {
-        if ((Input.GetKeyDown(KeyCode.LeftArrow) || mobileInput.Instance.swipeLeft) && !isMoving && direction !=directionBeforeCollision.L)
-        {
-            //rearrangeTheCharacterPos();
-            rb.velocity = Vector3.left * speed * Time.deltaTime;
-            isMoving = true;
-            direction = directionBeforeCollision.L;
-        }
-        else if ((Input.GetKeyDown(KeyCode.RightArrow) || mobileInput.Instance.swipeRight)&& !isMoving && direction != directionBeforeCollision.R)
-        {
-            //rearrangeTheCharacterPos();
-            rb.velocity = Vector3.right * speed * Time.deltaTime;
-            isMoving = true;
-            direction = directionBeforeCollision.R;
-        }
-        else if ((Input.GetKeyDown(KeyCode.UpArrow) || mobileInput.Instance.swipeUp)&& !isMoving && direction != directionBeforeCollision.F)
-        {
-           // rearrangeTheCharacterPos();
-            direction = directionBeforeCollision.F;
-            rb.velocity = Vector3.forward * speed * Time.deltaTime;
-            isMoving = true;
-        }
-        else if ((Input.GetKeyDown(KeyCode.DownArrow) || mobileInput.Instance.swipeDown)&& !isMoving && direction != directionBeforeCollision.B)
-        {
-            //rearrangeTheCharacterPos();
-            direction = directionBeforeCollision.B;
-            rb.velocity = -Vector3.forward * speed * Time.deltaTime;
-            isMoving = true;
-        }
+                if ((Input.GetKeyDown(KeyCode.LeftArrow) || mobileInput.Instance.swipeLeft) && !isMoving && direction !=directionBeforeCollision.L)
+                {
+                    //rearrangeTheCharacterPos();
+                    rb.velocity = Vector3.left * speed * Time.deltaTime;
+                    isMoving = true;
+                    direction = directionBeforeCollision.L;
+                }
+                else if ((Input.GetKeyDown(KeyCode.RightArrow) || mobileInput.Instance.swipeRight)&& !isMoving && direction != directionBeforeCollision.R)
+                {
+                    //rearrangeTheCharacterPos();
+                    rb.velocity = Vector3.right * speed * Time.deltaTime;
+                    isMoving = true;
+                    direction = directionBeforeCollision.R;
+                }
+                else if ((Input.GetKeyDown(KeyCode.UpArrow) || mobileInput.Instance.swipeUp)&& !isMoving && direction != directionBeforeCollision.F)
+                {
+                   // rearrangeTheCharacterPos();
+                    direction = directionBeforeCollision.F;
+                    rb.velocity = Vector3.forward * speed * Time.deltaTime;
+                    isMoving = true;
+                }
+                else if ((Input.GetKeyDown(KeyCode.DownArrow) || mobileInput.Instance.swipeDown)&& !isMoving && direction != directionBeforeCollision.B)
+                {
+                    //rearrangeTheCharacterPos();
+                    direction = directionBeforeCollision.B;
+                    rb.velocity = -Vector3.forward * speed * Time.deltaTime;
+                    isMoving = true;
+                }
         //Debug.Log(rb.velocity);
-        
+        //this.transform.position =QuadraticLerp(posA.position,posB.position,posC.position, 20f);
         if (rb.velocity.magnitude >5.4f)
         {
             rb.velocity = rb.velocity.normalized * 5.4f;
@@ -140,17 +154,17 @@ public class playerController : MonoBehaviour
         if (direction == directionBeforeCollision.L)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.x += 0.33f;
-            transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 200);
+            characterPos.x += 0.3f;
+            transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
             //transform.localPosition = characterPos;
 
         }
         else if (direction == directionBeforeCollision.R)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.x -= 0.33f;
+            characterPos.x -= 0.3f;
 
-            transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 200);
+            transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
             //transform.localPosition = characterPos;
 
@@ -158,8 +172,8 @@ public class playerController : MonoBehaviour
         else if (direction == directionBeforeCollision.B)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.z += 0.33f;
-            transform.position =Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 200);
+            characterPos.z += 0.3f;
+            transform.position =Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
             // transform.localPosition = characterPos;
 
@@ -168,8 +182,8 @@ public class playerController : MonoBehaviour
         else if (direction == directionBeforeCollision.F)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.z -= 0.33f;
-            transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 200);
+            characterPos.z -= 0.3f;
+            transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
             // transform.localPosition = characterPos;
 
@@ -186,9 +200,11 @@ public class playerController : MonoBehaviour
         
         Vector3 pos = previousDash.transform.localPosition;
         pos.y -= 0.080f;
+        //Vector3.Lerp(gam.transform.localPosition, pos, Time.deltaTime * 1000);
         gam.transform.localPosition  = pos;
         Vector3 characterPos = transform.localPosition;
         characterPos.y += 0.080f;
+        //Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 1000);
         transform.localPosition = characterPos;
         previousDash = gam;
 
