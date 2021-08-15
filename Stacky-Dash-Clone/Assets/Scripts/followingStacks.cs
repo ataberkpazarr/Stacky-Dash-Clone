@@ -71,6 +71,21 @@ public class followingStacks : MonoBehaviour
             playerController.instance.setLineExitCheckBool();
             //lineExitted = true;
             }
+
+        else if (other.tag == "Path")
+        {
+            
+            playerController.instance.setPathEnteredInfo ();
+            lineEnterPosition = this.transform.position;
+
+            other.gameObject.GetComponent<Collider>().isTrigger = false;
+
+            playerController.instance.spendDashes(lineEnterPosition);
+
+            //lineExitted = true;
+        }
+
+
     }
     /*
     private void OnTriggerExit(Collider other)
