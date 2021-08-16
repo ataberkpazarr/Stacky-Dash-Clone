@@ -55,6 +55,8 @@ public class playerController : MonoBehaviour
             instance = this;
             listOfCollectedStacks = new List<GameObject>();
             listOfCollectedStacks.Add(previousDash);
+
+
         }
     }
 
@@ -131,11 +133,22 @@ public class playerController : MonoBehaviour
             //transform.localPosition = new Vector3(0, 1.8f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
 
             //distanceTravelled += speedAtLine * Time.deltaTime;
+            if (!(pathEnterPositionY - 0.09f < -2.46f))
+            {
+                pathEnterPositionY -= 0.09f * speedAtLine * Time.deltaTime;
+                distanceTravelled += speedAtLine * Time.deltaTime;
+                transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.3f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
+            }
 
-            pathEnterPositionY -= 0.09f*speedAtLine*Time.deltaTime;
-            distanceTravelled += speedAtLine * Time.deltaTime;
-            transform.localPosition = new Vector3(0, pathEnterPositionY, 0)+ new Vector3(0, 2.6f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
-            //Vector3 desiredPoint = new Vector3(0, pathEnterPositionY, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
+            else 
+            {
+
+                //pathEnterPositionY -= 0.09f * speedAtLine * Time.deltaTime;
+                distanceTravelled += speedAtLine * Time.deltaTime;
+                transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.6f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
+
+            }
+                //Vector3 desiredPoint = new Vector3(0, pathEnterPositionY, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
             //float yOffset = -0.09f*Time.deltaTime*speedAtLine;
 
             //transform.localPosition = desiredPoint + new Vector3(0, yOffset, 0);
@@ -254,17 +267,56 @@ public class playerController : MonoBehaviour
         
     }
 
-    public void setPathEnteredInfo()
+    public void setPathEnteredInfo(bool b)
     {
-        pathEntered = true;
-    
+        pathEntered = b;
+        if (!b) //if path is exitted
+        {/*
+            Vector3 pos = previousDash.transform.localPosition;
+            pos.y -= 0.080f;
+            //Vector3.Lerp(gam.transform.localPosition, pos, Time.deltaTime * 1000);
+            
+            Vector3 characterPos = transform.localPosition;
+            characterPos.y = lineEnterPosition.y;
+            //Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 1000);
+            transform.localPosition = characterPos;
+            
+
+            previousDash.GetComponent<BoxCollider>().isTrigger = false;
+            */
+            /*
+            Vector3 stacksPos = parentOfDashes.transform.localPosition;
+            //stacksPos.y += 0.003f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
+            stacksPos.y += 0.22f;
+            parentOfDashes.transform.localPosition = stacksPos;
+            */
+            Vector3 stacksPos = rb.transform.position;
+            //stacksPos.y += 0.003f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
+            //stacksPos.y += 0.29f;
+            stacksPos.y = 0.9f; ///// degisebilir
+            rb.transform.position = stacksPos;
+
+            
+
+            /*
+            Vector3 characterPos = transform.localPosition;
+            characterPos.y = lineEnterPosition.y *speedAtLine*Time.deltaTime;
+            //Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 1000);
+            transform.position = characterPos;
+            */
+        }
+
     }
     public void rearrangeTheCharacterPos()
     {
         if (direction == directionBeforeCollision.L)
         {
-            Vector3 characterPos = transform.localPosition;
-            characterPos.x += 0.3f;
+
+
+
+
+        Vector3 characterPos = transform.localPosition;
+            characterPos.x += 0.3f *45 *Time.deltaTime;
             transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
             //transform.localPosition = characterPos;
 
@@ -272,7 +324,7 @@ public class playerController : MonoBehaviour
         else if (direction == directionBeforeCollision.R)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.x -= 0.3f;
+            characterPos.x -= 0.3f * 45 * Time.deltaTime; ;
 
             transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
@@ -282,7 +334,7 @@ public class playerController : MonoBehaviour
         else if (direction == directionBeforeCollision.B)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.z += 0.3f;
+            characterPos.z += 0.3f * 45 * Time.deltaTime; ;
             transform.position =Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
             // transform.localPosition = characterPos;
@@ -292,7 +344,7 @@ public class playerController : MonoBehaviour
         else if (direction == directionBeforeCollision.F)
         {
             Vector3 characterPos = transform.localPosition;
-            characterPos.z -= 0.3f;
+            characterPos.z -= 0.3f * 45 * Time.deltaTime; ;
             transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
             // transform.localPosition = characterPos;

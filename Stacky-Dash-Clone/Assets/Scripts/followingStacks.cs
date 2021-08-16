@@ -10,12 +10,7 @@ public class followingStacks : MonoBehaviour
     public GameObject rightBorder3;
     GameObject sprit;
     
-    private void Update()
-    {
-
-       
-       
-    }
+  
 
     private void Start()
     {
@@ -43,7 +38,7 @@ public class followingStacks : MonoBehaviour
 
         }
 
-        else if (other.tag =="Border")
+        else if (other.tag == "Border")
 
         {
 
@@ -52,30 +47,30 @@ public class followingStacks : MonoBehaviour
             Debug.Log("aaaaaaa");
         }
 
-        else if(other.tag =="Line")
+        else if (other.tag == "Line")
         {
-             lineEnterPosition = this.transform.position;
+            lineEnterPosition = this.transform.position;
 
             other.gameObject.GetComponent<Collider>().isTrigger = false;
 
-            playerController.instance.spendDashes(lineEnterPosition); 
-                
-            
+            playerController.instance.spendDashes(lineEnterPosition);
+
+
 
 
 
         }
 
-        else if(other.tag=="lineEnd")
-            {
+        else if (other.tag == "lineEnd")
+        {
             playerController.instance.setLineExitCheckBool();
             //lineExitted = true;
-            }
+        }
 
         else if (other.tag == "Path")
         {
-            
-            playerController.instance.setPathEnteredInfo ();
+
+            playerController.instance.setPathEnteredInfo(true);
             lineEnterPosition = this.transform.position;
 
             other.gameObject.GetComponent<Collider>().isTrigger = false;
@@ -83,6 +78,27 @@ public class followingStacks : MonoBehaviour
             playerController.instance.spendDashes(lineEnterPosition);
 
             //lineExitted = true;
+        }
+
+        else if (other.tag == "endOfPath")
+        {
+            playerController.instance.setPathEnteredInfo(false);
+            playerController.instance.setLineExitCheckBool();
+
+            //lineEnterPosition = this.transform.position;
+
+            //other.gameObject.GetComponent<Collider>().isTrigger = false;
+
+            //playerController.instance.spendDashes(lineEnterPosition);
+        }
+
+        else if (other.tag=="levelEnd")
+        {
+            lineEnterPosition = this.transform.position;
+
+            other.gameObject.GetComponent<Collider>().isTrigger = false;
+
+            playerController.instance.spendDashes(lineEnterPosition);
         }
 
 

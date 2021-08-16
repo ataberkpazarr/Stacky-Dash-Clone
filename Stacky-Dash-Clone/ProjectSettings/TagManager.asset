@@ -11,6 +11,8 @@ TagManager:
   - dashPrefab
   - lineEnd
   - Path
+  - endOfPath
+  - levelEnd
   layers:
   - Default
   - TransparentFX
