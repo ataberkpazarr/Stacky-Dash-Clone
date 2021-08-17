@@ -27,10 +27,13 @@ public class followingStacks : MonoBehaviour
         {
             other.gameObject.tag = "notDash"; //defensive programming 
             playerController.instance.TakeDashes(other.gameObject);
+            playerController.instance.IncreaseTotalCollected();
+
             other.gameObject.AddComponent<Rigidbody>(); // this dash will be thet next dash, thats why we are needed to add rigidbody, for catching the collisions
             other.gameObject.GetComponent<Rigidbody>().useGravity = false; // collisions will not physically affect our character
             other.gameObject.GetComponent<Rigidbody>().isKinematic = true; // collisions will not physically affect our character
             other.gameObject.AddComponent<followingStacks>(); // adding this script to new dash which will be the new bottom dash
+
             Destroy(this); //destroying this script because this dash is not the most bottom dash anymore and thats why it does not need this script
 
 
@@ -103,7 +106,7 @@ public class followingStacks : MonoBehaviour
             */
             playerController.instance.setEndPlatformReachedInfo();
             //playerController.instance.setMovingInfo(true);
-            playerController.instance.setReachedMultiplierInfo(0f);
+            playerController.instance.setReachedMultiplierInfo(0f); //we already finished and at the x1 
 
         }
 
@@ -119,9 +122,14 @@ public class followingStacks : MonoBehaviour
             playerController.instance.SetBackwardMovementAllowedInfo();
         
         }
+        else if (other.tag == "finishLine")
+        {
+            cameraMovement.instance.reachedFinishLine();
+
+        }
 
 
-        
+
 
 
     }

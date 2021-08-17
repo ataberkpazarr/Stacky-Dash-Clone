@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using PathCreation; //free unity package    
 using System;
-using UnityEngine.UI; 
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class playerController : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class playerController : MonoBehaviour
     [SerializeField] private Text levelEndText;
     [SerializeField] private Text scoreBoard;
     [SerializeField] private GameObject dashPosition;
+
+    private int totalCollected=0;
 
 
     private bool pathEntered;
@@ -93,16 +96,54 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void Update() //freeze position & rotation may be required 
     {
-        scoreBoard.text = listOfCollectedStacks.Count.ToString(); ;
+        //scoreBoard.text = listOfCollectedStacks.Count.ToString(); ;
+        if (!endPlatformReached)
+        {
+            scoreBoard.text = totalCollected.ToString();
+        }
         if (listOfCollectedStacks.Count==1  )
         {
             if (endPlatformReached)
             {
-
+                float coefficient = 1;
                 setMovingInfo(true);
-                endPlatformReached = false;
-                levelEndText.text = "Congrats for having X" + reachedMultiplier.ToString();
+                //endPlatformReached = false;
+                
+
+                if (reachedMultiplier ==1)
+                {
+                    coefficient = 1.1f;
+                }
+
+                else if (reachedMultiplier == 2)
+                {
+                    coefficient = 1.2f;
+                }
+
+                else if (reachedMultiplier == 3)
+                {
+                    coefficient = 1.3f;
+                }
+
+                else if (reachedMultiplier == 4)
+                {
+                    coefficient = 1.4f;
+                }
+
+                else if (reachedMultiplier == 5)
+                {
+                    coefficient = 1.5f;
+                }
+
+                levelEndText.text = "Congrats for having X" + coefficient.ToString();
+
+                //float a = 5f * totalCollected;
+                scoreBoard.text = (totalCollected * coefficient).ToString();
+                //scoreBoard.text = "aaaaaaaaaaaaaaaaaa";
+
                 levelEndPanel.SetActive(true);
+
+                Invoke("load_next_scene", 1f);
             }
             setOffset();
             /*
@@ -313,6 +354,13 @@ public class playerController : MonoBehaviour
 
     }
 
+    private void load_next_scene()
+    {
+        Destroy(this);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+
+
+    }
     private void setOffset()
     {
         
@@ -440,6 +488,12 @@ public class playerController : MonoBehaviour
     public void SetBackwardMovementAllowedInfo()
     {
         backwardMovementIsAllowed = false;
+    }
+
+    public void IncreaseTotalCollected()
+    {
+
+        totalCollected = totalCollected + 1;
     }
     public void TakeDashes(GameObject gam)
     {

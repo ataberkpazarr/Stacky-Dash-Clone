@@ -15,6 +15,7 @@ TagManager:
   - levelEnd
   - reachedMultiplier
   - blockBackwardMovement
+  - finishLine
   layers:
   - Default
   - TransparentFX
