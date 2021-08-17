@@ -13,6 +13,8 @@ TagManager:
   - Path
   - endOfPath
   - levelEnd
+  - reachedMultiplier
+  - blockBackwardMovement
   layers:
   - Default
   - TransparentFX

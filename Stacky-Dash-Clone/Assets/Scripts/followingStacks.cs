@@ -33,7 +33,7 @@ public class followingStacks : MonoBehaviour
             other.gameObject.AddComponent<followingStacks>(); // adding this script to new dash which will be the new bottom dash
             Destroy(this); //destroying this script because this dash is not the most bottom dash anymore and thats why it does not need this script
 
-            Debug.Log("aa");
+
 
 
         }
@@ -44,7 +44,7 @@ public class followingStacks : MonoBehaviour
 
             playerController.instance.setMovingInfo(true); //sending true means movement stopped and make isMoving false 
             playerController.instance.rearrangeTheCharacterPos();
-            Debug.Log("aaaaaaa");
+
         }
 
         else if (other.tag == "Line")
@@ -92,14 +92,36 @@ public class followingStacks : MonoBehaviour
             //playerController.instance.spendDashes(lineEnterPosition);
         }
 
-        else if (other.tag=="levelEnd")
-        {
+        else if (other.tag == "levelEnd")
+        {/*
             lineEnterPosition = this.transform.position;
 
             other.gameObject.GetComponent<Collider>().isTrigger = false;
 
             playerController.instance.spendDashes(lineEnterPosition);
+            playerController.instance.setEndPlatformReachedInfo();
+            */
+            playerController.instance.setEndPlatformReachedInfo();
+            //playerController.instance.setMovingInfo(true);
+            playerController.instance.setReachedMultiplierInfo(0f);
+
         }
+
+        else if (other.tag == "reachedMultiplier")
+        {
+            Debug.Log(other.name);
+            float reached_multiplier_number = float.Parse(other.name.ToString());
+            playerController.instance.setReachedMultiplierInfo(reached_multiplier_number);
+        }
+
+        else if (other.tag == "blockBackwardMovement")
+        {
+            playerController.instance.SetBackwardMovementAllowedInfo();
+        
+        }
+
+
+        
 
 
     }

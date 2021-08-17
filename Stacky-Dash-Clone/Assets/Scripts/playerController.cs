@@ -3,20 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using PathCreation; //free unity package    
 using System;
+using UnityEngine.UI; 
 
 public class playerController : MonoBehaviour
 {
+    private float reachedMultiplier;
+
+    [SerializeField] private GameObject levelEndPanel;
+    [SerializeField] private Text levelEndText;
+    [SerializeField] private Text scoreBoard;
+    [SerializeField] private GameObject dashPosition;
+
+
     private bool pathEntered;
     public PathCreator pathCreator_; // for the non-straight line creation 
     public float speedAtLine = 5f;  //speed in the non-straight line
     float distanceTravelled;
-
-
+    ////0.1699996
+    bool endPlatformReached;
     private float pathEnterPositionY;
     public Transform posA;
     public Transform posB;
     public Transform posC;
     public float interpolateAmount;
+
+    private Vector3 parentOfDashesPos;
 
     public GameObject dashpref;
     public GameObject parentOfDashes; 
@@ -24,9 +35,11 @@ public class playerController : MonoBehaviour
     public float speed;
     public Rigidbody rb;
     public GameObject previousDash;
-    private bool isMoving = false;  
-    
+    private bool isMoving = false;
+    private bool backwardMovementIsAllowed;
     int lollazo = 0;
+
+    
 
     public GameObject first_stack;
     Vector3 lineEnterPosition;
@@ -36,7 +49,8 @@ public class playerController : MonoBehaviour
     bool line_entered = false;
 
     public List<GameObject> listOfCollectedStacks;
-   
+
+    private float offsetBetweenGroundAndCharacter;
     
 
     directionBeforeCollision direction;
@@ -55,6 +69,11 @@ public class playerController : MonoBehaviour
             instance = this;
             listOfCollectedStacks = new List<GameObject>();
             listOfCollectedStacks.Add(previousDash);
+            
+            backwardMovementIsAllowed = true;
+            offsetBetweenGroundAndCharacter = this.transform.position.y - dashPosition.transform.position.y;
+
+            parentOfDashesPos = parentOfDashes.transform.position;
 
 
         }
@@ -74,96 +93,118 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void Update() //freeze position & rotation may be required 
     {
+        scoreBoard.text = listOfCollectedStacks.Count.ToString(); ;
+        if (listOfCollectedStacks.Count==1  )
+        {
+            if (endPlatformReached)
+            {
+
+                setMovingInfo(true);
+                endPlatformReached = false;
+                levelEndText.text = "Congrats for having X" + reachedMultiplier.ToString();
+                levelEndPanel.SetActive(true);
+            }
+            setOffset();
+            /*
+            float offsetDifference = listOfCollectedStacks[0].gameObject.transform.position.y - dashPosition.transform.position.y;
+            if (offsetDifference >0)
+            {
+                Vector3 pos = transform.position;
+                pos.y -= offsetDifference;
+                transform.position = pos;
+            }
+
+            else if (offsetDifference<0)
+            {
+                Vector3 pos = transform.position;
+                pos.y += Math.Abs(offsetDifference);
+                transform.position = pos;
+            }*/
+            /*
+            if (this.transform.position.y < 0.4f)
+            {
+
+                Vector3 pos = transform.position;
+                pos.y = 0.4f;
+                transform.position = pos;
+            }*/
+
+           // rb.velocity = rb.velocity.normalized * 0f;
+           // rb.velocity = rb.velocity * 0*Time.deltaTime; //-0.08
+          
+        }
+
         if (!pathEntered)
         {
-            if ((Input.GetKeyDown(KeyCode.LeftArrow) || mobileInput.Instance.swipeLeft) && !isMoving && direction != directionBeforeCollision.L)
+            if ((Input.GetKeyDown(KeyCode.LeftArrow) || mobileInput.Instance.swipeLeft) && !isMoving && direction != directionBeforeCollision.L )
             {
                 //rearrangeTheCharacterPos();
                 rb.velocity = Vector3.left * speed * Time.deltaTime;
                 isMoving = true;
                 direction = directionBeforeCollision.L;
+
+                
             }
-            else if ((Input.GetKeyDown(KeyCode.RightArrow) || mobileInput.Instance.swipeRight) && !isMoving && direction != directionBeforeCollision.R)
+            else if ((Input.GetKeyDown(KeyCode.RightArrow) || mobileInput.Instance.swipeRight) && !isMoving && direction != directionBeforeCollision.R )
             {
                 //rearrangeTheCharacterPos();
                 rb.velocity = Vector3.right * speed * Time.deltaTime;
                 isMoving = true;
                 direction = directionBeforeCollision.R;
+                if (!backwardMovementIsAllowed)
+                {
+                    backwardMovementIsAllowed = true;
+                }
             }
-            else if ((Input.GetKeyDown(KeyCode.UpArrow) || mobileInput.Instance.swipeUp) && !isMoving && direction != directionBeforeCollision.F)
+            else if ((Input.GetKeyDown(KeyCode.UpArrow) || mobileInput.Instance.swipeUp) && !isMoving && direction != directionBeforeCollision.F )
             {
                 // rearrangeTheCharacterPos();
                 direction = directionBeforeCollision.F;
                 rb.velocity = Vector3.forward * speed * Time.deltaTime;
                 isMoving = true;
+                if (!backwardMovementIsAllowed)
+                {
+                    backwardMovementIsAllowed = true;
+                }
             }
-            else if ((Input.GetKeyDown(KeyCode.DownArrow) || mobileInput.Instance.swipeDown) && !isMoving && direction != directionBeforeCollision.B)
+            else if ((Input.GetKeyDown(KeyCode.DownArrow) || mobileInput.Instance.swipeDown) && !isMoving && direction != directionBeforeCollision.B &&backwardMovementIsAllowed )
             {
                 //rearrangeTheCharacterPos();
                 direction = directionBeforeCollision.B;
                 rb.velocity = -Vector3.forward * speed * Time.deltaTime;
                 isMoving = true;
             }
+
+           
         }
-        /*
-        else if (pathEntered)
-        {
-            distanceTravelled += speedAtLine * Time.deltaTime;
-            transform.localPosition = pathCreator_.path.GetPointAtDistance(distanceTravelled);
 
-
-            //transform.rotation = pathCreator_.path.GetRotationAtDistance(distanceTravelled);
-            
-
-
-        }*/
-        
-        
-        //Debug.Log(rb.velocity);
-        //this.transform.position =QuadraticLerp(posA.position,posB.position,posC.position, 20f);
-        if (rb.velocity.magnitude >5.4f)
+        if (rb.velocity.magnitude > 5.4f)
         {
             rb.velocity = rb.velocity.normalized * 5.4f;
         }
 
         if (pathEntered)
         {
-            //sadece bu iki satır vardı //-----------***********
-            //distanceTravelled += speedAtLine * Time.deltaTime;
-            //transform.localPosition = new Vector3(0, 1.8f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
-
-            //distanceTravelled += speedAtLine * Time.deltaTime;
+            
             if (!(pathEnterPositionY - 0.09f < -2.46f))
             {
+                //transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.3f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
+                
                 pathEnterPositionY -= 0.09f * speedAtLine * Time.deltaTime;
                 distanceTravelled += speedAtLine * Time.deltaTime;
-                transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.3f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
+                transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.7f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
             }
 
             else 
             {
 
-                //pathEnterPositionY -= 0.09f * speedAtLine * Time.deltaTime;
+               
                 distanceTravelled += speedAtLine * Time.deltaTime;
                 transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.6f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
 
             }
-                //Vector3 desiredPoint = new Vector3(0, pathEnterPositionY, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
-            //float yOffset = -0.09f*Time.deltaTime*speedAtLine;
+                
 
-            //transform.localPosition = desiredPoint + new Vector3(0, yOffset, 0);
-
-
-
-
-            //transform.TransformPoint(0, 1, 0);
-            //transform.localPosition = transform.localPosition + new Vector3(0,Math.Abs(transform.localPosition.y-0.2f),0);
-
-            //pathCreator_.transform.localPosition = pathCreator_.transform.position + new Vector3(0, pathCreator_.transform.position.y, 0);
-            //transform.rotation = pathCreator_.path.GetRotationAtDistance(distanceTravelled);
-
-            //////
-            ///
             if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1)
             {
                 last_step_putted_position = transform.position;
@@ -190,15 +231,18 @@ public class playerController : MonoBehaviour
                 GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject));
 
                 GameObject g = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject;
-                Debug.Log("aa");
+                
 
                 if (listOfCollectedStacks.Count == 1)
                 {
-                    // Vector3 currentPosOfLastStack = listOfCollectedStacks[0].gameObject.transform.localPosition;
+                    
                     Vector3 currentPosOfLastStack = parentOfDashes.transform.localPosition;
                     currentPosOfLastStack.y -= 0.2f;
                     parentOfDashes.transform.localPosition = currentPosOfLastStack;
-                    //listOfCollectedStacks[0].gameObject.transform.localPosition = currentPosOfLastStack;
+
+                    
+
+
                 }
 
 
@@ -214,7 +258,7 @@ public class playerController : MonoBehaviour
         else if (line_entered)
         {
             
-            Debug.Log(Vector3.Distance(transform.position, last_step_putted_position));
+            //Debug.Log(Vector3.Distance(transform.position, last_step_putted_position));
             // && 1 > Vector3.Distance(transform.position, last_step_putted_position)
             if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1)
             {
@@ -242,7 +286,7 @@ public class playerController : MonoBehaviour
                 GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject));
 
                 GameObject g = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject;
-                Debug.Log("aa");
+                
 
                 if (listOfCollectedStacks.Count == 1)
                 {
@@ -263,47 +307,85 @@ public class playerController : MonoBehaviour
        
 
 
-        
-        
+
+
+
+
     }
 
+    private void setOffset()
+    {
+        
+        float offsetDifference = listOfCollectedStacks[listOfCollectedStacks.Count-1].gameObject.transform.position.y - dashPosition.transform.position.y;
+        
+        //float offsetDifference = parentOfDashesPos.y - dashPosition.transform.position.y;
+
+        if (offsetDifference > 0)
+        {
+            Vector3 pos = transform.position;
+            
+            pos.y -= offsetDifference;
+            transform.localPosition = pos;
+            
+
+            /*
+            Vector3 pos = parentOfDashes.transform.position;
+
+            pos.y -= offsetDifference;
+            parentOfDashes.transform.position = pos;*/
+        }
+
+        else if (offsetDifference < 0)
+        {
+            
+            Vector3 pos = transform.position;
+            pos.y += Math.Abs(offsetDifference);
+            //pos.y = dashPosition.transform.position.y;
+
+            transform.localPosition = pos;
+            /*
+            Vector3 pos = parentOfDashes.transform.position;
+            pos.y += Math.Abs(offsetDifference);
+            //pos.y = dashPosition.transform.position.y;
+
+            parentOfDashes.transform.position = pos;
+            */
+        }
+        /*
+        float differenceOfOffsettes = offsetBetweenGroundAndCharacter - offsetDifference;
+        if (differenceOfOffsettes >0)
+        {
+
+        }
+
+        else if (differenceOfOffsettes<0)
+        { }*/
+    }
+
+    public void setReachedMultiplierInfo(float f)
+    {
+        reachedMultiplier = f;
+    }
+    public void setEndPlatformReachedInfo()
+    {
+        endPlatformReached = true;
+        
+    }
     public void setPathEnteredInfo(bool b)
     {
         pathEntered = b;
         if (!b) //if path is exitted
-        {/*
-            Vector3 pos = previousDash.transform.localPosition;
-            pos.y -= 0.080f;
-            //Vector3.Lerp(gam.transform.localPosition, pos, Time.deltaTime * 1000);
-            
-            Vector3 characterPos = transform.localPosition;
-            characterPos.y = lineEnterPosition.y;
-            //Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 1000);
-            transform.localPosition = characterPos;
-            
-
-            previousDash.GetComponent<BoxCollider>().isTrigger = false;
-            */
+        {
             /*
-            Vector3 stacksPos = parentOfDashes.transform.localPosition;
-            //stacksPos.y += 0.003f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
-            stacksPos.y += 0.22f;
-            parentOfDashes.transform.localPosition = stacksPos;
-            */
             Vector3 stacksPos = rb.transform.position;
             //stacksPos.y += 0.003f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
             //stacksPos.y += 0.29f;
-            stacksPos.y = 0.9f; ///// degisebilir
+            stacksPos.y = 0.85f; ///// degisebilir
             rb.transform.position = stacksPos;
-
-            
-
-            /*
-            Vector3 characterPos = transform.localPosition;
-            characterPos.y = lineEnterPosition.y *speedAtLine*Time.deltaTime;
-            //Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 1000);
-            transform.position = characterPos;
             */
+            setOffset();
+
+         
         }
 
     }
@@ -353,6 +435,11 @@ public class playerController : MonoBehaviour
 
 
 
+    }
+
+    public void SetBackwardMovementAllowedInfo()
+    {
+        backwardMovementIsAllowed = false;
     }
     public void TakeDashes(GameObject gam)
     {
@@ -408,9 +495,7 @@ public class playerController : MonoBehaviour
             pathEnterPositionY = 0;
 
         }
-        //float startIn = 0;
-        //float every = 0.125f;
-        //InvokeRepeating("instantiateDashSteps", startIn, every); //velocity 5.4 iyi
+        
        
         last_step_putted_position = aaa;
 
@@ -442,22 +527,10 @@ public class playerController : MonoBehaviour
 
 
 
-        /*
-        if (lollazo %2!=0)
-        {
-            Destroy(listOfCollectedStacks[0]);
-            listOfCollectedStacks.RemoveAt(0);
-            lineEnterPosition.z += 1.4f;
-            GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject));
-            GameObject g = Instantiate(sprite, lineEnterPosition+new Vector3(0,0.2f,0) , Quaternion.identity) as GameObject;
-        }
         
-       
-        lollazo += 1;
-        */
         line_entered = true;
         
-        Debug.Log(lollazo);
+       
 
     }
 }
