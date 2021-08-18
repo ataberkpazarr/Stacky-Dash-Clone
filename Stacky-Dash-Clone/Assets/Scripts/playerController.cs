@@ -10,9 +10,6 @@ public class playerController : MonoBehaviour
 {
     
 
-    [SerializeField] private GameObject levelEndPanel;
-    [SerializeField] private Text levelEndText;
-    [SerializeField] private Text scoreBoard;
     [SerializeField] private GameObject dashPosition;
     [SerializeField] private GameObject previousDash;
     [SerializeField] public float speedAtLine = 5f; //speed in the non-straight line
@@ -29,9 +26,10 @@ public class playerController : MonoBehaviour
     bool endPlatformReached; //check if end-platform is entered, set by following stacks, after trigger by collision
     private float pathEnterPositionY; // y dimension of character, when it entered to path
 
-    
 
 
+    public GameObject g1, g2;
+    private bool round;
     public static playerController instance; //this
     public float speed; 
     public Rigidbody rb; //character
@@ -80,13 +78,19 @@ public class playerController : MonoBehaviour
     {
         
        
-        normalizeVelocity(); 
-        updateScore(); 
+        normalizeVelocity();
+        if (!endPlatformReached)
+        {
+            sceneManager.instance.updateScore(totalCollected);
+        }
+           
         checkIfCollectedStacksRunOut();
         if (!pathEntered) // if path not entered
         {
             if (line_entered) //but if line entered
             {
+                //float round = checkRound();
+                //checkRound();
                 dropTiles(); 
             }
             Move();
@@ -103,11 +107,46 @@ public class playerController : MonoBehaviour
     }
 
 
-   
+    /*
+    private bool checkRound()
+    {
+         GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject)); //take the required stack prefab that will be newly instantiated, from assets/resources/stackprefab_
+       
 
+        if (lollazo % 2 == 0)
+        {
+            //GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject)); //take the required stack prefab that will be newly instantiated, from assets/resources/stackprefab_
+             g1 = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject; // instantiate new dropped stack 
+        }
+        else if  (lollazo %2 ==1)
+        {
+            g2 = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject; // instantiate new dropped stack 
+        }
+
+        if (!(g1.transform.position.y < g2.transform.position.y))
+        {
+            lollazo += 1;
+        }
+
+        return true;
+        
+
+
+
+       
+
+    }*/
     private void dropTiles()
     {
-        if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1) //check if the distance, between last stack putted position and current position of character, higher than 1 unit. Stacks are scaled 0.8x0.8 in x&z dimensions for making visibility better, rather than 1x1
+        /*
+        if (!round)
+        {
+            Debug.Log("burdayım");
+            lollazo += 1;
+            round = true;
+        }*/
+        
+        if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1 ) //check if the distance, between last stack putted position and current position of character, higher than 1 unit. Stacks are scaled 0.8x0.8 in x&z dimensions for making visibility better, rather than 1x1
         {
             last_step_putted_position = transform.position; // saving the location where the last stack dropped so I will be able to drop a new one in every 1 unit by the help of above if condition checks
             Destroy(listOfCollectedStacks[0]); // destroy the last collected stack
@@ -232,38 +271,17 @@ public class playerController : MonoBehaviour
                     coefficient = 1.5f;
                 }
 
-                levelEndText.text = "Congrats for having X" + coefficient.ToString();
-
-
-                scoreBoard.text = (totalCollected * coefficient).ToString();
-
-
-                levelEndPanel.SetActive(true);
-
-                Invoke("load_next_scene", 1f);
+                sceneManager.instance.handleLevelEnd(coefficient,totalCollected);
+                
             }
 
-            //setOffset(); // commentteed tı bak buraya 
-
+            //setOffset(); 
 
         }
 
 
     }
-    private void updateScore()
-    {
-        if (!endPlatformReached)
-        {
-            scoreBoard.text = totalCollected.ToString();
-        }
-    }
-    private void load_next_scene() //calling with invoke. That's why It says 0 
-    {
-        Destroy(this);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-
-
-    }
+   
     private void setOffset() //the y position get harmed after it enters to "path", here, y position issues are being handled
     {
         

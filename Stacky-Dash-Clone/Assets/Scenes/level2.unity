@@ -5303,24 +5303,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b1faa620198f746a11beed9c05a946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelEndPanel: {fileID: 1835593030}
-  levelEndText: {fileID: 1711092413}
-  scoreBoard: {fileID: 53281426}
   dashPosition: {fileID: 1472244261}
-  dashPosition2: {fileID: 0}
-  pathCreator_: {fileID: 182060204}
+  previousDash: {fileID: 1547889050}
   speedAtLine: 5
-  posA: {fileID: 0}
-  posB: {fileID: 0}
-  posC: {fileID: 0}
+  pathCreator_: {fileID: 182060204}
   interpolateAmount: 50
   dashpref: {fileID: 5207582152436743415, guid: 07d79377e29e34548b7a8d82e1135a1f,
     type: 3}
   parentOfDashes: {fileID: 367362289}
+  g1: {fileID: 0}
+  g2: {fileID: 0}
   speed: 1500
   rb: {fileID: 601816752}
-  previousDash: {fileID: 1547889050}
-  first_stack: {fileID: 0}
   listOfCollectedStacks: []
 --- !u!1 &629141614
 GameObject:
@@ -6756,8 +6750,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 817822152}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2600001, y: -0.25, z: 69.657}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalPosition: {x: 0.31, y: -0.25, z: 70.26}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 14
@@ -7161,8 +7155,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 910845374}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.203, y: -3.14, z: 6.418}
-  m_LocalScale: {x: 3.6959047, y: 0.50000006, z: 0.4845808}
+  m_LocalPosition: {x: -0.482, y: -3.14, z: 6.418}
+  m_LocalScale: {x: 3.1380398, y: 0.50000006, z: 0.4845808}
   m_Children: []
   m_Father: {fileID: 1124331071}
   m_RootOrder: 15
@@ -14086,7 +14080,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1712154262}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.758, y: -0.38, z: 59.99}
+  m_LocalPosition: {x: 0.55, y: -0.38, z: 59.99}
   m_LocalScale: {x: 6.0667152, y: 1, z: 20.320007}
   m_Children:
   - {fileID: 1425564566}
@@ -16036,8 +16030,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1978234722}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.98, y: -9.6, z: 76.17}
-  m_LocalScale: {x: 1, y: 1, z: 1.34}
+  m_LocalPosition: {x: 0.54, y: -9.6, z: 77.42}
+  m_LocalScale: {x: 1, y: 1, z: 1.6}
   m_Children:
   - {fileID: 502195370}
   - {fileID: 1295825935}
@@ -16526,6 +16520,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2009444701}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2014265343
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2014265345}
+  - component: {fileID: 2014265344}
+  m_Layer: 0
+  m_Name: sceneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2014265344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2014265343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35fb46a378c0c9342b5aa7724dc80a35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelEndText: {fileID: 1829972723}
+  levelEndPanel: {fileID: 1835593030}
+  scoreBoard: {fileID: 53281426}
+--- !u!4 &2014265345
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2014265343}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.9085798, y: 4.274023, z: 49.974823}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 19
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2042278491
 GameObject:
   m_ObjectHideFlags: 0
@@ -17297,8 +17337,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2127924956}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.31944802, y: 0.55, z: -0.44552138}
-  m_LocalScale: {x: 0.3626345, y: 0.047, z: 0.10826769}
+  m_LocalPosition: {x: -0.3495, y: 0.55, z: -0.44552138}
+  m_LocalScale: {x: 0.302442, y: 0.047, z: 0.10826769}
   m_Children: []
   m_Father: {fileID: 1712154266}
   m_RootOrder: 1

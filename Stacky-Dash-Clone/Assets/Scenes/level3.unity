@@ -5707,20 +5707,17 @@ MonoBehaviour:
   levelEndText: {fileID: 1711092413}
   scoreBoard: {fileID: 53281426}
   dashPosition: {fileID: 1472244261}
-  dashPosition2: {fileID: 1629329418}
-  pathCreator_: {fileID: 182060204}
+  previousDash: {fileID: 1547889050}
   speedAtLine: 5
-  posA: {fileID: 0}
-  posB: {fileID: 0}
-  posC: {fileID: 0}
+  pathCreator_: {fileID: 182060204}
   interpolateAmount: 50
   dashpref: {fileID: 5207582152436743415, guid: 07d79377e29e34548b7a8d82e1135a1f,
     type: 3}
   parentOfDashes: {fileID: 367362289}
+  g1: {fileID: 0}
+  g2: {fileID: 0}
   speed: 1500
   rb: {fileID: 601816752}
-  previousDash: {fileID: 1547889050}
-  first_stack: {fileID: 0}
   listOfCollectedStacks: []
 --- !u!1 &604309456
 GameObject:
@@ -14675,6 +14672,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1473178443}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1475011755
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1475011757}
+  - component: {fileID: 1475011756}
+  m_Layer: 0
+  m_Name: sceneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1475011756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1475011755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35fb46a378c0c9342b5aa7724dc80a35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelEndText: {fileID: 1016339005}
+  levelEndPanel: {fileID: 1835593030}
+  scoreBoard: {fileID: 53281426}
+--- !u!4 &1475011757
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1475011755}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.9085798, y: 4.274023, z: 49.974823}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 19
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1480021552
 GameObject:
   m_ObjectHideFlags: 0
