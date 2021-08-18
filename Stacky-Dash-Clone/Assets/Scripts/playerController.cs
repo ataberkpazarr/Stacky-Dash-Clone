@@ -14,48 +14,38 @@ public class playerController : MonoBehaviour
     [SerializeField] private Text levelEndText;
     [SerializeField] private Text scoreBoard;
     [SerializeField] private GameObject dashPosition;
+    [SerializeField] private GameObject previousDash;
+    [SerializeField] public float speedAtLine = 5f; //speed in the non-straight line
+    [SerializeField] private PathCreator pathCreator_; // for the non-straight line creation, an Unity plugin is used by me
+    [SerializeField] private float interpolateAmount;
+    [SerializeField] GameObject dashpref; // for instantiating dashes when its required 
+    [SerializeField] GameObject parentOfDashes; // for reaching dashes, which follows character
 
-    private int totalCollected=0;
+    private int totalCollected=0; // total collected stack info
+    private bool pathEntered; //check if path is entered, set by following stacks, after trigger by collision
+    float distanceTravelled; // for calculation of the movement in the path
+
+    bool endPlatformReached; //check if end-platform is entered, set by following stacks, after trigger by collision
+    private float pathEnterPositionY; // y dimension of character, when it entered to path
+
+    
 
 
-    private bool pathEntered;
-    public PathCreator pathCreator_; // for the non-straight line creation 
-    public float speedAtLine = 5f;  //speed in the non-straight line
-    float distanceTravelled;
-    ////0.1699996
-    bool endPlatformReached;
-    private float pathEnterPositionY;
-    public Transform posA;
-    public Transform posB;
-    public Transform posC;
-    public float interpolateAmount;
-
-    private Vector3 parentOfDashesPos;
-
-    public GameObject dashpref;
-    public GameObject parentOfDashes; 
-    public static playerController instance;
-    public float speed;
-    public Rigidbody rb;
-    public GameObject previousDash;
-    private bool isMoving = false;
-    private bool backwardMovementIsAllowed;
+    public static playerController instance; //this
+    public float speed; 
+    public Rigidbody rb; //character
+   
+    private bool isMoving = false; //
+    private bool backwardMovementIsAllowed; //check if it is in backward movement non-allowed area, set by following stacks, after trigger by collision
     int lollazo = 0;
+    Vector3 lineEnterPosition; //line enter position for dropping stacks correctly
+    Vector3 last_step_putted_position; //where last stack dropped
+    bool line_entered = false; // set by followingstacks.cs
 
-    
+    public List<GameObject> listOfCollectedStacks; 
 
-    public GameObject first_stack;
-    Vector3 lineEnterPosition;
 
-    Vector3 last_step_putted_position;
-
-    bool line_entered = false;
-
-    public List<GameObject> listOfCollectedStacks;
-
-    private float offsetBetweenGroundAndCharacter;
-    
-
+    float fark;
     directionBeforeCollision direction;
     enum directionBeforeCollision
     {
@@ -74,43 +64,149 @@ public class playerController : MonoBehaviour
             listOfCollectedStacks.Add(previousDash);
             
             backwardMovementIsAllowed = true;
-            offsetBetweenGroundAndCharacter = this.transform.position.y - dashPosition.transform.position.y;
+          
 
-            parentOfDashesPos = parentOfDashes.transform.position;
+            
+            fark = previousDash.transform.position.y - transform.position.y;
 
+            
 
         }
     }
 
-    private Vector3 QuadraticLerp(Vector3 a, Vector3 b, Vector3 c, float t)
-    {
-        Vector3 ab = Vector3.Lerp(a,b,t);
-        Vector3 bc = Vector3.Lerp(b,c,t);
 
-        return Vector3.Lerp(ab,bc,interpolateAmount);
+    void Update() 
+    {
+        
+       
+        normalizeVelocity(); 
+        updateScore(); 
+        checkIfCollectedStacksRunOut();
+        if (!pathEntered) // if path not entered
+        {
+            if (line_entered) //but if line entered
+            {
+                dropTiles(); 
+            }
+            Move();
+
+        }
+
+        else if (pathEntered)
+        {
+
+            handlePathMovement(); //path movement is different from straight line movement
+        }
         
 
     }
 
 
-    // Update is called once per frame
-    void Update() //freeze position & rotation may be required 
-    {
-        //scoreBoard.text = listOfCollectedStacks.Count.ToString(); ;
-        if (!endPlatformReached)
-        {
-            scoreBoard.text = totalCollected.ToString();
-        }
-        if (listOfCollectedStacks.Count==1  )
-        {
-            if (endPlatformReached)
-            {
-                float coefficient = 1;
-                setMovingInfo(true);
-                //endPlatformReached = false;
-                
+   
 
-                if (reachedMultiplier ==1)
+    private void dropTiles()
+    {
+        if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1) //check if the distance, between last stack putted position and current position of character, higher than 1 unit. Stacks are scaled 0.8x0.8 in x&z dimensions for making visibility better, rather than 1x1
+        {
+            last_step_putted_position = transform.position; // saving the location where the last stack dropped so I will be able to drop a new one in every 1 unit by the help of above if condition checks
+            Destroy(listOfCollectedStacks[0]); // destroy the last collected stack
+            listOfCollectedStacks.RemoveAt(0); //remove the last collected stack from the list //bak buraya
+
+            /// lowering the character 
+            Vector3 characterPos = transform.localPosition;
+            characterPos.y -= 0.09f; //lowering y position of character
+            if (!(characterPos.y < 0.2f)) // character should not go to below of the main ground
+            {
+                
+                transform.position = characterPos;
+            }
+            Vector3 stacksPos = parentOfDashes.transform.localPosition;
+            stacksPos.y += 0.06f; //raising y position of stacks because above lowering operation affects all the character&stacks components whereas only character should be affected 
+            parentOfDashes.transform.localPosition = stacksPos;
+            GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject)); //take the required stack prefab that will be newly instantiated, from assets/resources/stackprefab_
+            GameObject g = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject; // instantiate new dropped stack 
+
+
+        }
+
+        lollazo += 1;
+    }
+    private void normalizeVelocity() //an upper limit for velocity o character
+    {
+
+        if (rb.velocity.magnitude > 5.4f)
+        {
+            rb.velocity = rb.velocity.normalized * 5.4f;
+        }
+    }
+
+
+    private void Move() //all move operations, including in line are handled by this function
+    {
+        if ((Input.GetKeyDown(KeyCode.LeftArrow) || mobileInput.Instance.swipeLeft) && !isMoving && direction != directionBeforeCollision.L)
+        {
+            
+            rb.velocity = Vector3.left * speed * Time.deltaTime;
+            isMoving = true;
+            direction = directionBeforeCollision.L;
+
+
+        }
+        else if ((Input.GetKeyDown(KeyCode.RightArrow) || mobileInput.Instance.swipeRight) && !isMoving && direction != directionBeforeCollision.R)
+        {
+
+            rb.velocity = Vector3.right * speed * Time.deltaTime;
+            isMoving = true;
+            direction = directionBeforeCollision.R;
+            if (!backwardMovementIsAllowed)
+            {
+                backwardMovementIsAllowed = true;
+            }
+        }
+        else if ((Input.GetKeyDown(KeyCode.UpArrow) || mobileInput.Instance.swipeUp) && !isMoving && direction != directionBeforeCollision.F)
+        {
+
+            direction = directionBeforeCollision.F;
+            rb.velocity = Vector3.forward * speed * Time.deltaTime;
+            isMoving = true;
+            if (!backwardMovementIsAllowed)
+            {
+                backwardMovementIsAllowed = true;
+            }
+        }
+        else if ((Input.GetKeyDown(KeyCode.DownArrow) || mobileInput.Instance.swipeDown) && !isMoving && direction != directionBeforeCollision.B && backwardMovementIsAllowed)
+        {
+
+            direction = directionBeforeCollision.B;
+            rb.velocity = -Vector3.forward * speed * Time.deltaTime;
+            isMoving = true;
+        }
+    }
+
+    private void handlePathMovement()
+    {
+        dropTiles();
+        if (!(pathEnterPositionY - 0.09f <0)) // character should not go to below level of main ground
+        {
+            pathEnterPositionY -= 0.09f * speedAtLine * Time.deltaTime;
+        }
+        distanceTravelled += speedAtLine * Time.deltaTime;
+        transform.position = new Vector3(0, pathEnterPositionY, 0)  + pathCreator_.path.GetPointAtDistance(distanceTravelled);
+
+
+    }
+    private void checkIfCollectedStacksRunOut() //if collectedstacks run out or not
+    {
+        if (listOfCollectedStacks.Count == 1) // most bottom is not loseable, thats why if we have 1 rather than 0, It means we already spent all
+        {
+            if (endPlatformReached) //if endplatform is reached
+            {
+                float coefficient = 1; // multiplier coefficient
+                setMovingInfo(true); //for ending movement
+
+
+
+                if (reachedMultiplier == 1)
                 {
                     coefficient = 1.1f;
                 }
@@ -137,250 +233,52 @@ public class playerController : MonoBehaviour
 
                 levelEndText.text = "Congrats for having X" + coefficient.ToString();
 
-                //float a = 5f * totalCollected;
+
                 scoreBoard.text = (totalCollected * coefficient).ToString();
-                //scoreBoard.text = "aaaaaaaaaaaaaaaaaa";
+
 
                 levelEndPanel.SetActive(true);
 
                 Invoke("load_next_scene", 1f);
             }
-            setOffset();
-            /*
-            float offsetDifference = listOfCollectedStacks[0].gameObject.transform.position.y - dashPosition.transform.position.y;
-            if (offsetDifference >0)
-            {
-                Vector3 pos = transform.position;
-                pos.y -= offsetDifference;
-                transform.position = pos;
-            }
 
-            else if (offsetDifference<0)
-            {
-                Vector3 pos = transform.position;
-                pos.y += Math.Abs(offsetDifference);
-                transform.position = pos;
-            }*/
-            /*
-            if (this.transform.position.y < 0.4f)
-            {
-
-                Vector3 pos = transform.position;
-                pos.y = 0.4f;
-                transform.position = pos;
-            }*/
-
-           // rb.velocity = rb.velocity.normalized * 0f;
-           // rb.velocity = rb.velocity * 0*Time.deltaTime; //-0.08
-          
-        }
-
-        if (!pathEntered)
-        {
-            if ((Input.GetKeyDown(KeyCode.LeftArrow) || mobileInput.Instance.swipeLeft) && !isMoving && direction != directionBeforeCollision.L )
-            {
-                //rearrangeTheCharacterPos();
-                rb.velocity = Vector3.left * speed * Time.deltaTime;
-                isMoving = true;
-                direction = directionBeforeCollision.L;
-
-                
-            }
-            else if ((Input.GetKeyDown(KeyCode.RightArrow) || mobileInput.Instance.swipeRight) && !isMoving && direction != directionBeforeCollision.R )
-            {
-                //rearrangeTheCharacterPos();
-                rb.velocity = Vector3.right * speed * Time.deltaTime;
-                isMoving = true;
-                direction = directionBeforeCollision.R;
-                if (!backwardMovementIsAllowed)
-                {
-                    backwardMovementIsAllowed = true;
-                }
-            }
-            else if ((Input.GetKeyDown(KeyCode.UpArrow) || mobileInput.Instance.swipeUp) && !isMoving && direction != directionBeforeCollision.F )
-            {
-                // rearrangeTheCharacterPos();
-                direction = directionBeforeCollision.F;
-                rb.velocity = Vector3.forward * speed * Time.deltaTime;
-                isMoving = true;
-                if (!backwardMovementIsAllowed)
-                {
-                    backwardMovementIsAllowed = true;
-                }
-            }
-            else if ((Input.GetKeyDown(KeyCode.DownArrow) || mobileInput.Instance.swipeDown) && !isMoving && direction != directionBeforeCollision.B &&backwardMovementIsAllowed )
-            {
-                //rearrangeTheCharacterPos();
-                direction = directionBeforeCollision.B;
-                rb.velocity = -Vector3.forward * speed * Time.deltaTime;
-                isMoving = true;
-            }
-
-           
-        }
-
-        if (rb.velocity.magnitude > 5.4f)
-        {
-            rb.velocity = rb.velocity.normalized * 5.4f;
-        }
-
-        if (pathEntered)
-        {
-            
-            if (!(pathEnterPositionY - 0.09f < -2.46f))
-            {
-                //transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.3f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
-                
-                pathEnterPositionY -= 0.09f * speedAtLine * Time.deltaTime;
-                distanceTravelled += speedAtLine * Time.deltaTime;
-                transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.7f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
-            }
-
-            else 
-            {
-
-               
-                distanceTravelled += speedAtLine * Time.deltaTime;
-                transform.localPosition = new Vector3(0, pathEnterPositionY, 0) + new Vector3(0, 2.6f, 0) + pathCreator_.path.GetPointAtDistance(distanceTravelled);
-
-            }
-                
-
-            if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1)
-            {
-                last_step_putted_position = transform.position;
-
-                Destroy(listOfCollectedStacks[0]);
-                listOfCollectedStacks.RemoveAt(0);
-
-
-                /// lowering the character 
-
-                Vector3 characterPos = transform.localPosition;
-                characterPos.y -= 0.09f; //lowering y position of character
-                if (!(characterPos.y < 0.2f)) // character should not go to below of the main ground
-                {
-                    transform.localPosition = characterPos;
-                }
-                Vector3 stacksPos = parentOfDashes.transform.localPosition;
-                stacksPos.y += 0.06f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
-                parentOfDashes.transform.localPosition = stacksPos;
-
-
-
-
-                GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject));
-
-                GameObject g = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject;
-                
-
-                if (listOfCollectedStacks.Count == 1)
-                {
-                    
-                    Vector3 currentPosOfLastStack = parentOfDashes.transform.localPosition;
-                    currentPosOfLastStack.y -= 0.2f;
-                    parentOfDashes.transform.localPosition = currentPosOfLastStack;
-
-                    
-
-
-                }
-
-
-            }
-
-
-            lollazo += 1;
-
+            //setOffset(); // commentteed tı bak buraya 
 
 
         }
-
-        else if (line_entered)
-        {
-            
-            //Debug.Log(Vector3.Distance(transform.position, last_step_putted_position));
-            // && 1 > Vector3.Distance(transform.position, last_step_putted_position)
-            if (lollazo % 2 != 0 && 1f < Vector3.Distance(transform.position, last_step_putted_position) && listOfCollectedStacks.Count > 1)
-            {
-                last_step_putted_position = transform.position;
-
-                Destroy(listOfCollectedStacks[0]);
-                listOfCollectedStacks.RemoveAt(0);
-
-
-                /// lowering the character 
-
-                Vector3 characterPos = transform.localPosition;
-                characterPos.y -= 0.09f; //lowering y position of character
-                if (!(characterPos.y < 0.2f)) // character should not go to below of the main ground
-                {
-                    transform.localPosition = characterPos;
-                }
-                Vector3 stacksPos = parentOfDashes.transform.localPosition;
-                stacksPos.y += 0.06f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
-                parentOfDashes.transform.localPosition = stacksPos;
-               
-
-
-
-                GameObject sprite = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject));
-
-                GameObject g = Instantiate(sprite, new Vector3(transform.position.x, lineEnterPosition.y + 0.2f, transform.position.z), Quaternion.identity) as GameObject;
-                
-
-                if (listOfCollectedStacks.Count == 1)
-                {
-                    // Vector3 currentPosOfLastStack = listOfCollectedStacks[0].gameObject.transform.localPosition;
-                    Vector3 currentPosOfLastStack = parentOfDashes.transform.localPosition;
-                    currentPosOfLastStack.y -= 0.2f;
-                    parentOfDashes.transform.localPosition = currentPosOfLastStack;
-                    //listOfCollectedStacks[0].gameObject.transform.localPosition = currentPosOfLastStack;
-                }
-
-                
-            }
-
-          
-            lollazo += 1;
-        }
-
-       
-
-
-
-
 
 
     }
-
-    private void load_next_scene()
+    private void updateScore()
+    {
+        if (!endPlatformReached)
+        {
+            scoreBoard.text = totalCollected.ToString();
+        }
+    }
+    private void load_next_scene() //calling with invoke. That's why It says 0 
     {
         Destroy(this);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
 
 
     }
-    private void setOffset()
+    private void setOffset() //the y position get harmed after it enters to "path", here, y position issues are being handled
     {
         
         float offsetDifference = listOfCollectedStacks[listOfCollectedStacks.Count-1].gameObject.transform.position.y - dashPosition.transform.position.y;
         
-        //float offsetDifference = parentOfDashesPos.y - dashPosition.transform.position.y;
+       
 
         if (offsetDifference > 0)
         {
             Vector3 pos = transform.position;
             
             pos.y -= offsetDifference;
-            transform.localPosition = pos;
+            transform.position = pos;
             
 
-            /*
-            Vector3 pos = parentOfDashes.transform.position;
-
-            pos.y -= offsetDifference;
-            parentOfDashes.transform.position = pos;*/
+      
         }
 
         else if (offsetDifference < 0)
@@ -388,27 +286,15 @@ public class playerController : MonoBehaviour
             
             Vector3 pos = transform.position;
             pos.y += Math.Abs(offsetDifference);
-            //pos.y = dashPosition.transform.position.y;
+           
 
-            transform.localPosition = pos;
-            /*
-            Vector3 pos = parentOfDashes.transform.position;
-            pos.y += Math.Abs(offsetDifference);
-            //pos.y = dashPosition.transform.position.y;
-
-            parentOfDashes.transform.position = pos;
-            */
+            transform.position = pos;
+            
         }
-        /*
-        float differenceOfOffsettes = offsetBetweenGroundAndCharacter - offsetDifference;
-        if (differenceOfOffsettes >0)
-        {
-
-        }
-
-        else if (differenceOfOffsettes<0)
-        { }*/
+        
     }
+
+    
 
     public void setReachedMultiplierInfo(float f)
     {
@@ -424,20 +310,14 @@ public class playerController : MonoBehaviour
         pathEntered = b;
         if (!b) //if path is exitted
         {
-            /*
-            Vector3 stacksPos = rb.transform.position;
-            //stacksPos.y += 0.003f; //raising y position of stacks because above lowering operation affects all the character&stacks components but actually only character should be affected 
-            //stacksPos.y += 0.29f;
-            stacksPos.y = 0.85f; ///// degisebilir
-            rb.transform.position = stacksPos;
-            */
+            
             setOffset();
 
          
         }
 
     }
-    public void rearrangeTheCharacterPos()
+    public void rearrangeTheCharacterPos() // after collision to borders, character position should be rearrenged 
     {
         if (direction == directionBeforeCollision.L)
         {
@@ -448,7 +328,7 @@ public class playerController : MonoBehaviour
         Vector3 characterPos = transform.localPosition;
             characterPos.x += 0.3f *45 *Time.deltaTime;
             transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
-            //transform.localPosition = characterPos;
+           
 
         }
         else if (direction == directionBeforeCollision.R)
@@ -458,7 +338,7 @@ public class playerController : MonoBehaviour
 
             transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
-            //transform.localPosition = characterPos;
+            
 
         }
         else if (direction == directionBeforeCollision.B)
@@ -467,7 +347,7 @@ public class playerController : MonoBehaviour
             characterPos.z += 0.3f * 45 * Time.deltaTime; ;
             transform.position =Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
-            // transform.localPosition = characterPos;
+            
 
 
         }
@@ -477,7 +357,7 @@ public class playerController : MonoBehaviour
             characterPos.z -= 0.3f * 45 * Time.deltaTime; ;
             transform.position = Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 50);
 
-            // transform.localPosition = characterPos;
+            
 
         }
 
@@ -503,11 +383,11 @@ public class playerController : MonoBehaviour
         
         Vector3 pos = previousDash.transform.localPosition;
         pos.y -= 0.080f;
-        //Vector3.Lerp(gam.transform.localPosition, pos, Time.deltaTime * 1000);
+        
         gam.transform.localPosition  = pos;
         Vector3 characterPos = transform.localPosition;
         characterPos.y += 0.080f;
-        //Vector3.Lerp(transform.localPosition, characterPos, Time.deltaTime * 1000);
+        
         transform.localPosition = characterPos;
         previousDash = gam;
 
@@ -544,47 +424,34 @@ public class playerController : MonoBehaviour
     public void spendDashes(Vector3 aaa)
     {
         lineEnterPosition = aaa;
-        if (pathEntered)
+        if (pathEntered )
         {
-            pathEnterPositionY = 0;
+            
+            if (SceneManager.GetActiveScene().buildIndex == 0)  // if in level 1
+            {
+                pathEnterPositionY = 2.2f;
 
+            }
+            else if (SceneManager.GetActiveScene().buildIndex == 1) //level 2 
+            {
+                pathEnterPositionY = 2.6f+(1.2f * (listOfCollectedStacks.Count/40)); // checks what percentage of total collectable stacks are being collected. The amount which character will be raied in dimension Y, is being decided respected to this number
+            }
+            else if (SceneManager.GetActiveScene().buildIndex == 2) //Level 3
+                {
+                pathEnterPositionY = 2.6f+(2.2f * (listOfCollectedStacks.Count/47));
+            }
+            
         }
-        
        
+
+        line_entered = true;
         last_step_putted_position = aaa;
 
         
-       instantiateDashSteps();
-       
-
-    }
-    private bool isInt(float N)
-    {
-
-        // Convert float value
-        // of N to integer
-        int X = (int)N;
-
-        float temp2 = N - X;
-
-        // If N is not equivalent
-        // to any integer
-        if (temp2 > 0)
-        {
-            return false;
-        }
-        return true;
-    }
-    void instantiateDashSteps() //destroying gameobject slowly
-    {
-
-
-
-
-        
-        line_entered = true;
         
        
 
     }
+   
+    
 }

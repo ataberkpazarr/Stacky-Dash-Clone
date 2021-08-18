@@ -15,7 +15,7 @@ public class cameraMovement : MonoBehaviour
         if (!reachedFinishLineBool)
         {
             Vector3 cameraPos = target.position + offset;
-            //transform.position = Vector3.Lerp(transform.position,cameraPos,lerpVal*Time.deltaTime);
+            
             transform.position = cameraPos;
         }
         else 

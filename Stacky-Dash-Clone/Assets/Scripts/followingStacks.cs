@@ -5,19 +5,9 @@ using UnityEngine;
 public class followingStacks : MonoBehaviour
 {
     public GameObject dashPrefab;
-    private bool lineExitted =true;
     Vector3 lineEnterPosition;
     public GameObject rightBorder3;
-    GameObject sprit;
     
-  
-
-    private void Start()
-    {
-         sprit = (GameObject)Resources.Load("stackPrefab_", typeof(GameObject));
-
-
-    }
 
    
 
@@ -67,7 +57,7 @@ public class followingStacks : MonoBehaviour
         else if (other.tag == "lineEnd")
         {
             playerController.instance.setLineExitCheckBool();
-            //lineExitted = true;
+           
         }
 
         else if (other.tag == "Path")
@@ -80,7 +70,7 @@ public class followingStacks : MonoBehaviour
 
             playerController.instance.spendDashes(lineEnterPosition);
 
-            //lineExitted = true;
+            
         }
 
         else if (other.tag == "endOfPath")
@@ -88,31 +78,19 @@ public class followingStacks : MonoBehaviour
             playerController.instance.setPathEnteredInfo(false);
             playerController.instance.setLineExitCheckBool();
 
-            //lineEnterPosition = this.transform.position;
-
-            //other.gameObject.GetComponent<Collider>().isTrigger = false;
-
-            //playerController.instance.spendDashes(lineEnterPosition);
         }
 
         else if (other.tag == "levelEnd")
-        {/*
-            lineEnterPosition = this.transform.position;
-
-            other.gameObject.GetComponent<Collider>().isTrigger = false;
-
-            playerController.instance.spendDashes(lineEnterPosition);
+        {
             playerController.instance.setEndPlatformReachedInfo();
-            */
-            playerController.instance.setEndPlatformReachedInfo();
-            //playerController.instance.setMovingInfo(true);
+            
             playerController.instance.setReachedMultiplierInfo(0f); //we already finished and at the x1 
 
         }
 
         else if (other.tag == "reachedMultiplier")
         {
-            Debug.Log(other.name);
+            
             float reached_multiplier_number = float.Parse(other.name.ToString());
             playerController.instance.setReachedMultiplierInfo(reached_multiplier_number);
         }
@@ -133,13 +111,5 @@ public class followingStacks : MonoBehaviour
 
 
     }
-    /*
-    private void OnTriggerExit(Collider other)
-    {
-        
-        if (other.tag=="Line")
-        {
-            lineExitted = true;
-        }
-    }*/
+   
 }
