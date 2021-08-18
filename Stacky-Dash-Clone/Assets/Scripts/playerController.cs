@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class playerController : MonoBehaviour
 {
-    private float reachedMultiplier;
+    
 
     [SerializeField] private GameObject levelEndPanel;
     [SerializeField] private Text levelEndText;
@@ -24,6 +24,7 @@ public class playerController : MonoBehaviour
     private int totalCollected=0; // total collected stack info
     private bool pathEntered; //check if path is entered, set by following stacks, after trigger by collision
     float distanceTravelled; // for calculation of the movement in the path
+    private float reachedMultiplier;
 
     bool endPlatformReached; //check if end-platform is entered, set by following stacks, after trigger by collision
     private float pathEnterPositionY; // y dimension of character, when it entered to path
