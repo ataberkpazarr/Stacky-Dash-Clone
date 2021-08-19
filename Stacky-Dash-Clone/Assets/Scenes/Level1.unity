@@ -3794,9 +3794,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b1faa620198f746a11beed9c05a946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelEndPanel: {fileID: 1835593030}
-  levelEndText: {fileID: 1711092413}
-  scoreBoard: {fileID: 53281426}
   dashPosition: {fileID: 1472244261}
   previousDash: {fileID: 1547889050}
   speedAtLine: 5
